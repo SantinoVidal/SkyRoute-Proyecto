@@ -187,9 +187,17 @@ while True:
 
 			if opcionSubmenu == 1:
 				# Agregar una nueva venta solicitando cliente y destino
-				nombre_cliente = input("Ingrese nombre del Cliente para la venta: ")
+				dni_cliente = input("Ingrese DNI del Cliente para la venta: ")
+				cliente = buscar_cliente_por_dni(dni_cliente)
+				if not cliente:
+					print("Cliente no encontrado.")
+					continue
+
 				destino_venta = input("Ingrese el destino de la venta: ")
-				agregar_venta(nombre_cliente, destino_venta)
+				if destino_venta not in listaDestinos:
+					print("Destino no válido.")
+					continue
+				agregar_venta(cliente["nombre"], destino_venta)
 
 			elif opcionSubmenu == 2:
 				# Modificar venta buscando por DNI del cliente
@@ -203,6 +211,9 @@ while True:
 							nuevo_destino = input("Ingrese el nuevo destino: ")
 							venta["cliente"] = nuevo_nombre
 							venta["destino"] = nuevo_destino
+							if nuevo_destino not in listaDestinos:
+								print("Destino no válido.")
+								continue
 							print("Venta modificada correctamente.")
 							venta_encontrada = True
 							break
