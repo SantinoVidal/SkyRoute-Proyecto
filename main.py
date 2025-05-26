@@ -90,7 +90,8 @@ while True:
 				nombre = input("Ingrese el nombre del nuevo cliente: ")
 				apellido = input("Ingrese el apellido del nuevo cliente: ")
 				dni = input("Ingrese el DNI del nuevo cliente: ")
-				nuevoCliente = {"nombre": nombre, "apellido": apellido, "dni": dni}
+				contacto = input("Ingrese email de contacto: ")
+				nuevoCliente = {"nombre": nombre, "apellido": apellido, "dni": dni, "contacto":contacto}
 				listaClientes.append(nuevoCliente)  # Guardar nuevo cliente en la lista
 				print(f"Cliente '{nombre} {apellido}' agregado.")
 
