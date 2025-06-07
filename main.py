@@ -21,6 +21,8 @@ Instrucciones de ejecución:
 3. Seguir las instrucciones que se presentan en pantalla para gestionar clientes, ventas y otras funciones.
 """
 
+from datetime import datetime #Se utiliza para registrar la fecha de venta
+
 # Función que muestra el menú principal del sistema
 def menu_principal():
 	print("¡Bienvenido a SkyRoute - Sistema de Gestión de Pasajes!")
@@ -42,7 +44,8 @@ listaDestinos = []  # Lista donde se guardan los destinos (nombres de destinos)
 
 # Función para agregar una nueva venta
 def agregar_venta(cliente, destino):
-	venta = {"cliente": cliente, "destino": destino}  # Crear diccionario con datos de venta
+	fecha= datetime.now().strftime("%Y-%m-%d %H:%M") # Registra la fecha y hora de venta
+	venta = {"cliente": cliente, "destino": destino, "fecha de venta" : fecha}  # Crear diccionario con datos de venta
 	ventas.append(venta)                              # Agregar venta a la lista de ventas
 	print(f"Venta agregada: {venta}")
 
@@ -145,7 +148,10 @@ while True:
 
 			elif opcionDestino == 2:
 				# Agregar un nuevo destino a la lista
-				nuevoDestino = input("Ingrese el nombre del nuevo destino: ")
+				ciudad = input("Ingrese el nombre de la ciudad: ")
+				país = input("Ingrese el nombre del país: ")
+				costo_base_del_viaje = input("Ingrese costo base del viaje: ")
+				nuevoDestino = {"ciudad": ciudad, "país": país, "costo base del viaje": costo_base_del_viaje}
 				listaDestinos.append(nuevoDestino)
 				print(f"Destino '{nuevoDestino}' agregado correctamente.")
 
@@ -256,7 +262,7 @@ while True:
 				if ventas:
 					print("Lista de ventas registradas:")
 					for i, venta in enumerate(ventas, start=1):
-						print(f"{i}. Cliente: {venta['cliente']}, Destino: {venta['destino']}")
+						print(f"{i}. Cliente: {venta['cliente']}, Destino: {venta['destino']}, Fecha:{venta['fecha']}")
 				else:
 					print("No hay ventas registradas.")
 			elif opcionSubmenu == 2:
