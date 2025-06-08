@@ -38,30 +38,55 @@ def menu_principal():
 	print("8. Salir")
 
 # Listas globales para almacenar clientes, ventas y destinos.
-listaClientes = []  # Lista donde se guardan los clientes (diccionarios con nombre, apellido, dni)
-ventas = []         # Lista donde se guardan las ventas (diccionarios con cliente y destino)
+listaClientes = []  # Lista donde se guardan los clientes (diccionarios con razón social, CUIT y contacto)
+ventas = []         # Lista donde se guardan las ventas (diccionarios con cliente, destino y fechas)
 listaDestinos = []  # Lista donde se guardan los destinos (nombres de destinos)
 
 # Función para agregar una nueva venta
-def agregar_venta(cliente, destino):
-	fecha= datetime.now().strftime("%Y-%m-%d %H:%M") # Registra la fecha y hora de venta
-	venta = {"cliente": cliente, "destino": destino, "fecha de venta" : fecha}  # Crear diccionario con datos de venta
+def agregar_venta(cuit, id_destino):
+	fecha= datetime.now().strftime("%Y-%m-%d %H:%M:%S") # Registra la fecha y hora de venta
+	venta = {"cliente_cuit": cuit, "destino_id": id_destino, "fecha_de_venta" : fecha, "costo": costo_base, "estado":"Activa"}  # Crear diccionario con datos de venta
 	ventas.append(venta)                              # Agregar venta a la lista de ventas
 	print(f"Venta agregada: {venta}")
 
 # Función para deshacer la última venta (botón de arrepentimiento)
+from datetime import datetime, timedelta
 def arrepentimiento():
-	if ventas:
-		ultima_venta = ventas.pop()                    # Quitar la última venta agregada
-		print(f" Se ha revertido la última venta: {ultima_venta}")
-	else:
-		print("No hay ventas para revertir")           # Avisar si no hay ventas para borrar
+    if ventas:
+        ultima_venta = ventas.pop() #Quitar la última venta agregada
+        fecha_venta = datetime.strptime(ultima_venta["fecha_de_venta"], "%Y-%m-%d %H:%M:%S")
+        fecha_actual = datetime.now()
 
-# Función auxiliar para buscar cliente por DNI
-def buscar_cliente_por_dni(dni):
+        # Contar días hábiles entre la venta y hoy
+        dias_habiles = 0
+        fecha_temp = fecha_venta
+
+        while fecha_temp.date() <= fecha_actual.date():
+            if fecha_temp.weekday() < 5:  # 0 a 4 = lunes a viernes
+                dias_habiles += 1
+            fecha_temp += timedelta(days=1)
+
+        if dias_habiles <= 60:
+            ultima_venta["estado"] = "Anulada"
+            ultima_venta["fecha_anulación"] = fecha_actual.strftime("%Y-%m-%d %H:%M:%S")
+            print("Venta anulada correctamente.")
+        else:
+            print("No se puede anular: han pasado más de 60 días hábiles.")
+    else:
+        print("No hay ventas para revertir.") # Avisar si no hay ventas para borrar
+
+# Función auxiliar para buscar cliente por CUIT
+def buscar_cliente_por_cuit(cuit):
 	for cliente in listaClientes:
-		if cliente["dni"] == dni:
+		if cliente["CUIT"] == cuit:
 			return cliente
+	return None
+
+# Función auxiliar para buscar destino por ciudad
+def buscar_destino_por_ciudad(ciudad):
+	for destino in listaDestinos:
+		if destino["ciudad"].lower() == ciudad.lower():
+			return destino
 	return None
 
 # Bucle principal del sistema que se repite hasta que el usuario elige salir
@@ -84,40 +109,40 @@ while True:
 				# Mostrar todos los clientes guardados
 				if listaClientes:
 					for cliente in listaClientes:
-						print(f"{cliente['nombre']} {cliente['apellido']} - DNI: {cliente['dni']}")
+						print(f"{cliente['Razón Social']} - CUIT: {cliente['CUIT']} - Contacto: {cliente['contacto']}")
 				else:
 					print("No hay clientes registrados.")
 
 			elif opcionSubmenu == 2:
 				# Agregar un nuevo cliente solicitando datos
-				nombre = input("Ingrese el nombre del nuevo cliente: ")
-				apellido = input("Ingrese el apellido del nuevo cliente: ")
-				dni = input("Ingrese el DNI del nuevo cliente: ")
+				razonSocial = input("Ingrese la razón social del nuevo cliente: ")
+				cuit = input("Ingrese el CUIT del nuevo cliente: ")
 				contacto = input("Ingrese email de contacto: ")
-				nuevoCliente = {"nombre": nombre, "apellido": apellido, "dni": dni, "contacto":contacto}
+				nuevoCliente = {"razonSocial": razonSocial, "CUIT": cuit, "contacto":contacto}
 				listaClientes.append(nuevoCliente)  # Guardar nuevo cliente en la lista
-				print(f"Cliente '{nombre} {apellido}' agregado.")
+				print(f"Cliente '{razonSocial}' agregado.")
 
 			elif opcionSubmenu == 3:
-				# Modificar datos de un cliente buscando por DNI
-				dniAModificar = input("Ingrese el DNI que desea modificar: ")
-				cliente = buscar_cliente_por_dni(dniAModificar)
+				# Modificar datos de un cliente buscando por CUIT
+				cuitAModificar = input("Ingrese el CUIT que desea modificar: ")
+				cliente = buscar_cliente_por_cuit(cuitAModificar)
 				if cliente:
-					cliente["nombre"] = input("Nuevo nombre: ")
-					cliente["apellido"] = input("Nuevo apellido: ")
+					cliente["razón social"] = input("Nueva razón social: ")
+					cliente["CUIT"] = input("Nuevo CUIT: ")
+					cliente["contacto"] = input("Nuevo email de contacto: ")
 					print("Cliente modificado.")
 				else:
-					print("Cliente no encontrado.")  # Si no encontró el DNI
+					print("Cliente no encontrado.")  # Si no encontró el CUIT
 
 			elif opcionSubmenu == 4:
-				# Eliminar cliente buscando por DNI
-				dniAEliminar = input("Ingrese el DNI que desea eliminar: ")
-				cliente = buscar_cliente_por_dni(dniAEliminar)
+				# Eliminar cliente buscando por CUIT
+				cuitAEliminar = input("Ingrese el CUIT que desea eliminar: ")
+				cliente = buscar_cliente_por_cuit(cuitAEliminar)
 				if cliente:
 					listaClientes.remove(cliente)  # Quitar cliente de la lista
 					print("Cliente eliminado.")
 				else:
-					print("Cliente no encontrado.")  # Si no encontró el DNI
+					print("Cliente no encontrado.")  # Si no encontró el CUIT
 
 			elif opcionSubmenu == 5:
 				# Volver al menú principal
@@ -149,22 +174,29 @@ while True:
 			elif opcionDestino == 2:
 				# Agregar un nuevo destino a la lista
 				ciudad = input("Ingrese el nombre de la ciudad: ")
-				país = input("Ingrese el nombre del país: ")
-				costo_base_del_viaje = input("Ingrese costo base del viaje: ")
-				nuevoDestino = {"ciudad": ciudad, "país": país, "costo base del viaje": costo_base_del_viaje}
+				pais = input("Ingrese el nombre del país: ")
+				costo_base = input("Ingrese costo base del viaje: ")
+				nuevoDestino = {"ciudad": ciudad, "pais": pais, "costo_base": costo_base}
 				listaDestinos.append(nuevoDestino)
 				print(f"Destino '{nuevoDestino}' agregado correctamente.")
 
 			elif opcionDestino == 3:
 				# Cambiar el nombre de un destino existente
-				destinoViejo = input("Ingrese el nombre del destino a cambiar: ")
-				if destinoViejo in listaDestinos:
-					destinoNuevo = input("Ingrese el nuevo nombre del destino: ")
-					pos = listaDestinos.index(destinoViejo)  # Buscar posición para modificar
-					listaDestinos[pos] = destinoNuevo
-					print(f"Destino '{destinoViejo}' cambiado a '{destinoNuevo}'.")
-				else:
-					print("Destino no encontrado.")
+				ciudad_actual = input("Ingrese el nombre de la ciudad a modificar: ")
+				destino_encontrado = False
+				for destino in listaDestinos:
+					if destino["ciudad"].lower() == ciudad_actual.lower():
+						nueva_ciudad = input("Ingrese el nuevo nombre de la ciudad: ")
+						nuevo_pais = input("Ingrese el nuevo nombre del país: ")
+						nuevo_costo = input("Ingrese el nuevo costo base del viaje: ")
+						destino["ciudad"] = nueva_ciudad
+						destino["país"] = nuevo_pais
+						destino["costo_base"] = nuevo_costo
+						print("Destino modificado correctamente.")
+						destino_encontrado = True
+						break
+					if not destino_encontrado:
+						print("Destino no encontrado.")
 
 			elif opcionDestino == 4:
 				# Quitar un destino de la lista
@@ -194,29 +226,30 @@ while True:
 
 			if opcionSubmenu == 1:
 				# Agregar una nueva venta solicitando cliente y destino
-				dni_cliente = input("Ingrese DNI del Cliente para la venta: ")
-				cliente = buscar_cliente_por_dni(dni_cliente)
+				cuit_cliente = input("Ingrese CUIT del Cliente para la venta: ")
+				cliente = buscar_cliente_por_cuit(cuit_cliente)
 				if not cliente:
 					print("Cliente no encontrado.")
 					continue
 
-				destino_venta = input("Ingrese el destino de la venta: ")
-				if destino_venta not in listaDestinos:
+				destino_venta = input("Ingrese la ciudad del destino: ")
+				destino = buscar_destino_por_ciudad(destino_venta)
+				if not destino:
 					print("Destino no válido.")
 					continue
-				agregar_venta(cliente["nombre"], destino_venta)
+				agregar_venta(cliente["razonSocial"], destino["ciudad"])
 
 			elif opcionSubmenu == 2:
-				# Modificar venta buscando por DNI del cliente
-				dni_a_buscar = input("Ingrese el DNI del cliente de la venta que desea modificar: ")
-				cliente = buscar_cliente_por_dni(dni_a_buscar)
+				# Modificar venta buscando por CUIT del cliente
+				cuit_a_buscar = input("Ingrese el CUIT del cliente de la venta que desea modificar: ")
+				cliente = buscar_cliente_por_cuit(cuit_a_buscar)
 				if cliente:
 					venta_encontrada = False
 					for venta in ventas:
-						if venta["cliente"] == cliente["nombre"]:
-							nuevo_nombre = input("Ingrese el nuevo nombre del cliente: ")
+						if venta["cliente_cuit"] == cliente["CUIT"]:
+							nuevo_cuit = input("Ingrese el nuevo CUIT del cliente: ")
 							nuevo_destino = input("Ingrese el nuevo destino: ")
-							venta["cliente"] = nuevo_nombre
+							venta["cliente_CUIT"] = nuevo_cuit
 							venta["destino"] = nuevo_destino
 							if nuevo_destino not in listaDestinos:
 								print("Destino no válido.")
@@ -230,13 +263,13 @@ while True:
 					print("Cliente no encontrado.")
 
 			elif opcionSubmenu == 3:
-				# Eliminar venta buscando por DNI del cliente
-				dni_a_eliminar = input("Ingrese el DNI del cliente de la venta que desea eliminar: ")
-				cliente = buscar_cliente_por_dni(dni_a_eliminar)
+				# Eliminar venta buscando por CUIT del cliente
+				cuit_a_eliminar = input("Ingrese el CUIT del cliente de la venta que desea eliminar: ")
+				cliente = buscar_cliente_por_cuit(cuit_a_eliminar)
 				if cliente:
 					venta_encontrada = False
 					for venta in ventas:
-						if venta["cliente"] == cliente["nombre"]:
+						if venta["cliente_cuit"] == cliente["CUIT"]:
 							ventas.remove(venta)
 							print("Venta eliminada correctamente.")
 							venta_encontrada = True
@@ -262,7 +295,9 @@ while True:
 				if ventas:
 					print("Lista de ventas registradas:")
 					for i, venta in enumerate(ventas, start=1):
-						print(f"{i}. Cliente: {venta['cliente']}, Destino: {venta['destino']}, Fecha:{venta['fecha']}")
+						estado = venta.get("estado", "Desconocido")
+						fecha_anulacion = venta.get("fecha_de_anulación", "No anulada")
+						print(f"{i}. Cliente: {venta['cliente']}, Destino: {venta['destino']}, Fecha: {venta['fecha_de_venta']}, Estado: {estado}, Anulación: {fecha_anulacion}")
 				else:
 					print("No hay ventas registradas.")
 			elif opcionSubmenu == 2:
