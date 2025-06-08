@@ -8,11 +8,11 @@ incluyendo la administración de clientes, destinos, ventas realizadas,
 consultas, reportes e implementación de un botón de arrepentimiento.
 
 Integrantes del grupo:
-- Vidal Gallea Santino
-- Esquivel Wanda
-- Lencina Gino Agustín
-- Lloveras Mateo
-- Paez Ramos Constanza
+- Vidal Gallea Santino (github SantinoVidal)
+- Esquivel Wanda (github wanda126)
+- Lencina Gino Agustín (github 
+- Lloveras Mateo (github 
+- Paez Ramos Constanza (github CotiPR)
 
 Instrucciones de ejecución:
 1. Ejecutar el archivo en una terminal que permita la entrada y salida de datos.
