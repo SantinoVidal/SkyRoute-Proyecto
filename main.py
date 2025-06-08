@@ -109,7 +109,7 @@ while True:
 				# Mostrar todos los clientes guardados
 				if listaClientes:
 					for cliente in listaClientes:
-						print(f"{cliente['Razón Social']} - CUIT: {cliente['CUIT']} - Contacto: {cliente['contacto']}")
+						print(f"{cliente['razonSocial']} - CUIT: {cliente['CUIT']} - Contacto: {cliente['contacto']}")
 				else:
 					print("No hay clientes registrados.")
 
