@@ -66,12 +66,12 @@ def arrepentimiento():
                 dias_habiles += 1
             fecha_temp += timedelta(days=1)
 
-        if dias_habiles <= 60:
+        if dias_habiles <= 10:
             ultima_venta["estado"] = "Anulada"
             ultima_venta["fecha_anulación"] = fecha_actual.strftime("%Y-%m-%d %H:%M:%S")
             print("Venta anulada correctamente.")
         else:
-            print("No se puede anular: han pasado más de 60 días hábiles.")
+            print("No se puede anular: han pasado más de 10 días hábiles.")
     else:
         print("No hay ventas para revertir.") # Avisar si no hay ventas para borrar
 
