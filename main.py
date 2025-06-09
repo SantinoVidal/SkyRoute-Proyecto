@@ -2,7 +2,7 @@
 Sistema de Gestión de Pasajes - SkyRoute
 
 Propósito:
-(Entrega de evidencia N2 del módulo programador)
+(Entrega de evidencia N2 y N3 del módulo programador)
 
 Este programa permite gestionar un sistema de ventas de pasajes,
 incluyendo la administración de clientes, destinos, ventas realizadas,
@@ -31,11 +31,10 @@ def menu_principal():
 	print("1. Gestionar Clientes")
 	print("2. Gestionar Destinos")
 	print("3. Gestionar Ventas")
-	print("4. Consultar Ventas")
-	print("5. Botón de Arrepentimiento")
-	print("6. Ver Reporte General")
-	print("7. Acerca del Sistema")
-	print("8. Salir")
+	print("4. Botón de Arrepentimiento")
+	print("5. Ver Reporte General")
+	print("6. Acerca del Sistema")
+	print("7. Salir")
 
 # Listas globales para almacenar clientes, ventas y destinos.
 listaClientes = []  # Lista donde se guardan los clientes (diccionarios con razón social, CUIT y contacto)
@@ -53,7 +52,7 @@ def agregar_venta(cuit, id_destino):
 from datetime import datetime, timedelta
 def arrepentimiento():
     if ventas:
-        ultima_venta = ventas.pop() #Quitar la última venta agregada
+        ultima_venta = ventas[-1] #Anula la última venta agregada
         fecha_venta = datetime.strptime(ultima_venta["fecha_de_venta"], "%Y-%m-%d %H:%M:%S")
         fecha_actual = datetime.now()
 
@@ -92,7 +91,7 @@ def buscar_destino_por_ciudad(ciudad):
 # Bucle principal del sistema que se repite hasta que el usuario elige salir
 while True:
 	menu_principal()
-	ingresoNumero = int(input("Ingrese el número (1-8) de la opción a la que quiere acceder: "))
+	ingresoNumero = int(input("Ingrese el número (1-7) de la opción a la que quiere acceder: "))
 
 	# Gestión de clientes
 	if ingresoNumero == 1:
@@ -190,18 +189,19 @@ while True:
 						nuevo_pais = input("Ingrese el nuevo nombre del país: ")
 						nuevo_costo = input("Ingrese el nuevo costo base del viaje: ")
 						destino["ciudad"] = nueva_ciudad
-						destino["país"] = nuevo_pais
+						destino["pais"] = nuevo_pais
 						destino["costo_base"] = nuevo_costo
 						print("Destino modificado correctamente.")
 						destino_encontrado = True
 						break
-					if not destino_encontrado:
-						print("Destino no encontrado.")
+				if not destino_encontrado:
+					print("Destino no encontrado.")
 
 			elif opcionDestino == 4:
 				# Quitar un destino de la lista
-				destinoEliminar = input("Ingrese el nombre del destino a eliminar: ")
-				if destinoEliminar in listaDestinos:
+				ciudad = input("Ingrese el nombre del destino a eliminar: ")
+				destinoEliminar = buscar_destino_por_ciudad(ciudad)
+				if destinoEliminar:
 					listaDestinos.remove(destinoEliminar)
 					print(f"Destino '{destinoEliminar}' eliminado.")
 				else:
@@ -219,9 +219,8 @@ while True:
 		while True:
 			print("-- GESTIONAR VENTAS --")
 			print("1. Agregar Venta")
-			print("2. Modificar Venta")
-			print("3. Eliminar Venta")
-			print("4. Volver al Menú Principal")
+			print("2. Consultar Ventas")
+			print("3. Volver al Menú Principal")
 			opcionSubmenu = int(input("Seleccione una opción: "))
 
 			if opcionSubmenu == 1:
@@ -237,75 +236,30 @@ while True:
 				if not destino:
 					print("Destino no válido.")
 					continue
-				agregar_venta(cliente["razonSocial"], destino["ciudad"])
+				agregar_venta(cliente["CUIT"], destino["ciudad"])
 
 			elif opcionSubmenu == 2:
-				# Modificar venta buscando por CUIT del cliente
-				cuit_a_buscar = input("Ingrese el CUIT del cliente de la venta que desea modificar: ")
-				cliente = buscar_cliente_por_cuit(cuit_a_buscar)
-				if cliente:
-					venta_encontrada = False
-					for venta in ventas:
-						if venta["cliente_cuit"] == cliente["CUIT"]:
-							nuevo_cuit = input("Ingrese el nuevo CUIT del cliente: ")
-							nuevo_destino = input("Ingrese el nuevo destino: ")
-							venta["cliente_CUIT"] = nuevo_cuit
-							venta["destino"] = nuevo_destino
-							if nuevo_destino not in listaDestinos:
-								print("Destino no válido.")
-								continue
-							print("Venta modificada correctamente.")
-							venta_encontrada = True
-							break
-					if not venta_encontrada:
-						print("No se encontró ninguna venta para ese cliente.")
-				else:
-					print("Cliente no encontrado.")
-
-			elif opcionSubmenu == 3:
-				# Eliminar venta buscando por CUIT del cliente
-				cuit_a_eliminar = input("Ingrese el CUIT del cliente de la venta que desea eliminar: ")
-				cliente = buscar_cliente_por_cuit(cuit_a_eliminar)
-				if cliente:
-					venta_encontrada = False
-					for venta in ventas:
-						if venta["cliente_cuit"] == cliente["CUIT"]:
-							ventas.remove(venta)
-							print("Venta eliminada correctamente.")
-							venta_encontrada = True
-							break
-					if not venta_encontrada:
-						print("No se encontró ninguna venta para ese cliente.")
-				else:
-					print("Cliente no encontrado.")
-
-			elif opcionSubmenu == 4:
-				# Volver al menú principal
-				break
-
-	# Consultar ventas
-	elif ingresoNumero == 4:
-		while True:
-			print("-- CONSULTAR VENTAS --")
-			print("1. Ver Ventas")
-			print("2. Volver al Menú Principal")
-			opcionSubmenu = int(input("Seleccione una opción: "))
-			if opcionSubmenu == 1:
 				# Mostrar todas las ventas registradas
 				if ventas:
 					print("Lista de ventas registradas:")
 					for i, venta in enumerate(ventas, start=1):
 						estado = venta.get("estado", "Desconocido")
-						fecha_anulacion = venta.get("fecha_de_anulación", "No anulada")
-						print(f"{i}. Cliente: {venta['cliente']}, Destino: {venta['destino']}, Fecha: {venta['fecha_de_venta']}, Estado: {estado}, Anulación: {fecha_anulacion}")
+						if estado == "Anulada":
+							fecha_anulacion = venta.get("fecha_anulación", "No anulada")
+							print(f"{i}. Cliente: {venta['cliente_cuit']}, Destino: {venta['destino_id']}, Fecha: {venta['fecha_de_venta']}, Estado: {estado}, Anulación: {fecha_anulacion}")
+						else:
+							print(f"{i}. Cliente: {venta['cliente_cuit']}, Destino: {venta['destino_id']}, Fecha: {venta['fecha_de_venta']}, Estado: {estado}")
 				else:
 					print("No hay ventas registradas.")
-			elif opcionSubmenu == 2:
+
+			elif opcionSubmenu == 3:
 				# Volver al menú principal
 				break
+			else:
+				print("Opción inválida, intente nuevamente.")
 
 	# Botón de arrepentimiento (deshacer última venta)
-	elif ingresoNumero == 5:
+	elif ingresoNumero == 4:
 		while True:
 			print("-- BOTÓN DE ARREPENTIMIENTO --")
 			print("1. Deshacer última venta")
@@ -319,7 +273,7 @@ while True:
 				print("Opción inválida.")
 
 	# Reporte general de ventas y clientes
-	elif ingresoNumero == 6:
+	elif ingresoNumero == 5:
 			print("-- REPORTE GENERAL --")
 			print(f"Total Clientes: {len(listaClientes)}")
 			print(f"Total Ventas: {len(ventas)}")
@@ -327,19 +281,24 @@ while True:
 			input("Ingrese cualquier número para volver al menú principal...")
 
 	# Información acerca del sistema
-	elif ingresoNumero == 7:
-			print("Sistema de Gestión de Pasajes SkyRoute.")
-			print("Desarrollado por el grupo integrado por Vidal, Esquivel, Lencina, Lloveras y Paez.")
-			print("Entrega Evidencia N2.")
+	elif ingresoNumero == 6:
+			print("-- REPORTE GENERAL --")
+			total_activas = sum(1 for v in ventas if v.get("estado") == "Activa")
+			total_anuladas = sum(1 for v in ventas if v.get("estado") == "Anulada")
+			print(f"Total Clientes: {len(listaClientes)}")
+			print(f"Total Destinos: {len(listaDestinos)}")
+			print(f"Total Ventas: {len(ventas)}")
+			print(f"Ventas Activas: {total_activas}")
+			print(f"Ventas Anuladas: {total_anuladas}")
 			input("Ingrese cualquier número para volver al menú principal...")
 
 	# Salir del sistema
-	elif ingresoNumero == 8:
+	elif ingresoNumero == 7:
 		print("Gracias por usar SkyRoute. ¡Hasta luego!")
 		break
 
 	# Opción inválida
 	else:
 		print("-----")
-		print("OPCIÓN INVÁLIDA, por favor ingrese un número entre 1 y 8.")
+		print("OPCIÓN INVÁLIDA, por favor ingrese un número entre 1 y 7.")
 		print("-----")
